@@ -12,7 +12,7 @@ is_atomic: false
 disable_swap: true
 
 ## Change this to use another Kubernetes version, e.g. a current beta release
-kube_version: v1.15.1
+kube_version: v1.15.3
 
 ## The minimum version working
 kube_version_min_required: v1.14.0
@@ -91,6 +91,8 @@ dns_servers: "{{kube_dns_servers[dns_mode]}}"
 
 enable_coredns_k8s_external: false
 coredns_k8s_external_zone: k8s_external.local
+
+enable_coredns_k8s_endpoint_pod_names: false
 
 # Kubernetes configuration dirs and system namespace.
 # Those are where all the additional config stuff goes
@@ -195,6 +197,16 @@ kube_profiling: false
 
 # Container for runtime
 container_manager: docker
+
+# CRI socket path
+cri_socket: >-
+  {%- if container_manager == 'crio' -%}
+  /var/run/crio/crio.sock
+  {%- elif container_manager == 'containerd' -%}
+  /var/run/containerd/containerd.sock
+  {%- else -%}
+  /var/run/dockershim.sock
+  {%- endif -%}
 
 ## Uncomment this if you want to force overlay/overlay2 as docker storage driver
 ## Please note that overlay2 is only supported on newer kernels

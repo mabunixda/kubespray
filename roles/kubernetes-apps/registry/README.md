@@ -55,7 +55,7 @@ spec:
 
 If, for example, you wanted to use NFS you would just need to change the
 `gcePersistentDisk` block to `nfs`. See
-[here](https://kubernetes.io/docs/user-guide/volumes.md) for more details on volumes.
+[here](https://kubernetes.io/docs/concepts/storage/volumes/) for more details on volumes.
 
 Note that in any case, the storage (in the case the GCE PersistentDisk) must be
 created independently - this is not something Kubernetes manages for you (yet).
@@ -186,7 +186,7 @@ node by creating following daemonset.
 
 <!-- BEGIN MUNGE: EXAMPLE ../../saltbase/salt/kube-registry-proxy/kube-registry-proxy.yaml -->
 ``` yaml
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: kube-registry-proxy
