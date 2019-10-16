@@ -80,6 +80,6 @@
   lineinfile:
     path: "{{ containerd_yum_conf }}"
     state: present
-    regexp: '^obsoletes='
-    line: 'obsoletes=0'
+    regexp: "^obsoletes="
+    line: "obsoletes=0"
   when: ansible_distribution in ["CentOS","RedHat"] and not is_atomic
