@@ -1,6 +1,6 @@
 ---
 # Use proxycommand if bastion host is in group all
-# This change obseletes editing ansible.cfg file depending on bastion existance
+# This change obseletes editing ansible.cfg file depending on bastion existence
 ansible_ssh_common_args: "{% if 'bastion' in groups['all'] %} -o ProxyCommand='ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -W %h:%p {{ hostvars['bastion']['ansible_user'] }}@{{ hostvars['bastion']['ansible_host'] }} {% if ansible_ssh_private_key_file is defined %}-i {{ ansible_ssh_private_key_file }}{% endif %} ' {% endif %}"
 
 kube_api_anonymous_auth: true
@@ -12,10 +12,10 @@ is_atomic: false
 disable_swap: true
 
 ## Change this to use another Kubernetes version, e.g. a current beta release
-kube_version: v1.15.6
+kube_version: v1.16.3
 
 ## The minimum version working
-kube_version_min_required: v1.14.0
+kube_version_min_required: v1.15.0
 
 ## Kube Proxy mode One of ['iptables','ipvs']
 kube_proxy_mode: ipvs
@@ -115,7 +115,6 @@ kube_token_dir: "{{ kube_config_dir }}/tokens"
 # This is where to save basic auth file
 kube_users_dir: "{{ kube_config_dir }}/users"
 
-
 # This is the group that the cert creation scripts chgrp the
 # cert files to. Not really changeable...
 kube_cert_group: kube-cert
@@ -140,6 +139,9 @@ peer_with_calico_rr: "{{ 'calico-rr' in groups and groups['calico-rr']|length > 
 
 # Set to false to disable calico-upgrade
 calico_upgrade_enabled: true
+
+# Choose data store type for calico: "etcd" or "kdd" (kubernetes datastore)
+calico_datastore: "etcd"
 
 # Kubernetes internal network for services, unused block of space.
 kube_service_addresses: 10.233.0.0/18
@@ -197,6 +199,16 @@ kube_profiling: false
 
 # Container for runtime
 container_manager: docker
+
+# CRI socket path
+cri_socket: >-
+  {%- if container_manager == 'crio' -%}
+  /var/run/crio/crio.sock
+  {%- elif container_manager == 'containerd' -%}
+  /var/run/containerd/containerd.sock
+  {%- else -%}
+  /var/run/dockershim.sock
+  {%- endif -%}
 
 ## Uncomment this if you want to force overlay/overlay2 as docker storage driver
 ## Please note that overlay2 is only supported on newer kernels
@@ -284,6 +296,7 @@ metrics_server_enabled: false
 enable_network_policy: true
 local_volume_provisioner_enabled: "{{ local_volumes_enabled | default('false') }}"
 local_volume_provisioner_directory_mode: 0700
+cinder_csi_enabled: false
 persistent_volumes_enabled: false
 cephfs_provisioner_enabled: false
 rbd_provisioner_enabled: false
@@ -312,7 +325,7 @@ openstack_cacert: "{{ lookup('env','OS_CACERT') }}"
 ## List of authorization modes that must be configured for
 ## the k8s cluster. Only 'AlwaysAllow', 'AlwaysDeny', 'Node' and
 ## 'RBAC' modes are tested. Order is important.
-authorization_modes: ['Node', 'RBAC']
+authorization_modes: ["Node", "RBAC"]
 rbac_enabled: "{{ 'RBAC' in authorization_modes }}"
 
 # When enabled, API bearer tokens (including service account tokens) can be used to authenticate to the kubelet’s HTTPS endpoint
