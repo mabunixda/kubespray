@@ -12,7 +12,7 @@ You can get your invite [here](http://slack.k8s.io/)
 -   Supports most popular **Linux distributions**
 -   **Continuous integration tests**
 
-Quick Start
+Quick Startg a
 -----------
 
 To deploy the cluster you can use :
