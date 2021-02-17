@@ -61,7 +61,7 @@ data:
   # If you want cilium monitor to aggregate tracing for packets, set this level
   # to "low", "medium", or "maximum". The higher the level, the less packets
   # that will be seen in monitor output.
-  monitor-aggregation-level: "none"
+  monitor-aggregation: "{{ cilium_monitor_aggregation }}"
 
   # ct-global-max-entries-* specifies the maximum number of connections
   # supported across all endpoints, split by protocol: tcp or other. One pair
@@ -140,3 +140,18 @@ data:
   # Enable legacy services (prior v1.5) to prevent from terminating existing
   # connections with services when upgrading Cilium from < v1.5 to v1.5.
   enable-legacy-services: "{{cilium_enable_legacy_services}}"
+
+  kube-proxy-replacement: "{{ cilium_kube_proxy_replacement }}"
+
+  native-routing-cidr: "{{ cilium_native_routing_cidr }}"
+  auto-direct-node-routes: "{{ cilium_auto_direct_node_routes }}"
+
+  # Hubble settings
+{% if cilium_enable_hubble %}
+  enable-hubble: "true"
+  hubble-metrics: "{{ cilium_hubble_metrics }}"
+  hubble-listen-address: ":4244"
+{% if cilium_enable_hubble_metrics %}
+  hubble-metrics-server: ":9091"
+{% endif %}
+{% endif %}

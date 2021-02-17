@@ -1,6 +1,6 @@
 ---
 kind: ClusterRole
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: calico-node
   namespace: kube-system
@@ -10,6 +10,7 @@ rules:
       - pods
       - nodes
       - namespaces
+      - configmaps
     verbs:
       - get
   - apiGroups: [""]
@@ -71,17 +72,14 @@ rules:
       - globalbgpconfigs
       - bgpconfigurations
       - ippools
-{% if calico_version is version('v3.6.0', '>=') %}
       - ipamblocks
-{% endif %}
       - globalnetworkpolicies
       - globalnetworksets
       - networkpolicies
-{% if calico_version is version('v3.7.0', '>=') %}
       - networksets
-{% endif %}
       - clusterinformations
       - hostendpoints
+      - blockaffinities
     verbs:
       - get
       - list
@@ -112,7 +110,6 @@ rules:
     verbs:
       - create
       - update
-{% if calico_version is version('v3.6.0', '>=') %}
   # These permissions are required for Calico CNI to perform IPAM allocations.
   - apiGroups: ["crd.projectcalico.org"]
     resources:
@@ -143,5 +140,4 @@ rules:
       - daemonsets
     verbs:
       - get
-{% endif %}
 {% endif %}

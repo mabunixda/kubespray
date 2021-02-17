@@ -5,7 +5,6 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: kube-dns
-    kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
 spec:
   selector:
@@ -28,8 +27,6 @@ spec:
         operator: "Exists"
       - effect: NoExecute
         operator: "Exists"
-      - key: "CriticalAddonsOnly"
-        operator: "Exists"
       containers:
       - name: node-cache
         image: "{{ nodelocaldns_image_repo }}:{{ nodelocaldns_image_tag }}"
@@ -39,7 +36,7 @@ spec:
           requests:
             cpu: {{ nodelocaldns_cpu_requests }}
             memory: {{ nodelocaldnsdns_memory_requests }}
-        args: [ "-localip", "{{ nodelocaldns_ip }}", "-conf", "/etc/coredns/Corefile" ]
+        args: [ "-localip", "{{ nodelocaldns_ip }}", "-conf", "/etc/coredns/Corefile", "-upstreamsvc", "coredns" ]
         securityContext:
           privileged: true
         ports:
@@ -82,6 +79,10 @@ spec:
             items:
             - key: Corefile
               path: Corefile
+{% if dns_etchosts | default(None) %}
+            - key: hosts
+              path: hosts
+{% endif %}
         - name: xtables-lock
           hostPath:
             path: /run/xtables.lock

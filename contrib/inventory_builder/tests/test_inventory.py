@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import inventory
 import mock
 import unittest
 
@@ -43,14 +44,14 @@ class TestInventory(unittest.TestCase):
 
     def test_get_ip_from_opts_invalid(self):
         optstring = "notanaddr=value something random!chars:D"
-        self.assertRaisesRegexp(ValueError, "IP parameter not found",
-                                self.inv.get_ip_from_opts, optstring)
+        self.assertRaisesRegex(ValueError, "IP parameter not found",
+                               self.inv.get_ip_from_opts, optstring)
 
     def test_ensure_required_groups(self):
         groups = ['group1', 'group2']
         self.inv.ensure_required_groups(groups)
         for group in groups:
-            self.assertTrue(group in self.inv.yaml_config['all']['children'])
+            self.assertIn(group, self.inv.yaml_config['all']['children'])
 
     def test_get_host_id(self):
         hostnames = ['node99', 'no99de01', '01node01', 'node1.domain',
@@ -63,8 +64,8 @@ class TestInventory(unittest.TestCase):
     def test_get_host_id_invalid(self):
         bad_hostnames = ['node', 'no99de', '01node', 'node.111111']
         for hostname in bad_hostnames:
-            self.assertRaisesRegexp(ValueError, "Host name must end in an",
-                                    self.inv.get_host_id, hostname)
+            self.assertRaisesRegex(ValueError, "Host name must end in an",
+                                   self.inv.get_host_id, hostname)
 
     def test_build_hostnames_add_one(self):
         changed_hosts = ['10.90.0.2']
@@ -192,8 +193,8 @@ class TestInventory(unittest.TestCase):
             ('node2', {'ansible_host': '10.90.0.3',
                        'ip': '10.90.0.3',
                        'access_ip': '10.90.0.3'})])
-        self.assertRaisesRegexp(ValueError, "Unable to find host",
-                                self.inv.delete_host_by_ip, existing_hosts, ip)
+        self.assertRaisesRegex(ValueError, "Unable to find host",
+                               self.inv.delete_host_by_ip, existing_hosts, ip)
 
     def test_purge_invalid_hosts(self):
         proper_hostnames = ['node1', 'node2']
@@ -208,8 +209,8 @@ class TestInventory(unittest.TestCase):
             ('doesnotbelong2', {'whateveropts=ilike'})])
         self.inv.yaml_config['all']['hosts'] = existing_hosts
         self.inv.purge_invalid_hosts(proper_hostnames)
-        self.assertTrue(
-            bad_host not in self.inv.yaml_config['all']['hosts'].keys())
+        self.assertNotIn(
+            bad_host, self.inv.yaml_config['all']['hosts'].keys())
 
     def test_add_host_to_group(self):
         group = 'etcd'
@@ -226,8 +227,8 @@ class TestInventory(unittest.TestCase):
         host = 'node1'
 
         self.inv.set_kube_master([host])
-        self.assertTrue(
-            host in self.inv.yaml_config['all']['children'][group]['hosts'])
+        self.assertIn(
+            host, self.inv.yaml_config['all']['children'][group]['hosts'])
 
     def test_set_all(self):
         hosts = OrderedDict([
@@ -245,8 +246,8 @@ class TestInventory(unittest.TestCase):
 
         self.inv.set_k8s_cluster()
         for host in expected_hosts:
-            self.assertTrue(
-                host in
+            self.assertIn(
+                host,
                 self.inv.yaml_config['all']['children'][group]['children'])
 
     def test_set_kube_node(self):
@@ -254,16 +255,16 @@ class TestInventory(unittest.TestCase):
         host = 'node1'
 
         self.inv.set_kube_node([host])
-        self.assertTrue(
-            host in self.inv.yaml_config['all']['children'][group]['hosts'])
+        self.assertIn(
+            host, self.inv.yaml_config['all']['children'][group]['hosts'])
 
     def test_set_etcd(self):
         group = 'etcd'
         host = 'node1'
 
         self.inv.set_etcd([host])
-        self.assertTrue(
-            host in self.inv.yaml_config['all']['children'][group]['hosts'])
+        self.assertIn(
+            host, self.inv.yaml_config['all']['children'][group]['hosts'])
 
     def test_scale_scenario_one(self):
         num_nodes = 50
@@ -309,8 +310,8 @@ class TestInventory(unittest.TestCase):
 
     def test_range2ips_incorrect_range(self):
         host_range = ['10.90.0.4-a.9b.c.e']
-        self.assertRaisesRegexp(Exception, "Range of ip_addresses isn't valid",
-                                self.inv.range2ips, host_range)
+        self.assertRaisesRegex(Exception, "Range of ip_addresses isn't valid",
+                               self.inv.range2ips, host_range)
 
     def test_build_hostnames_different_ips_add_one(self):
         changed_hosts = ['10.90.0.2,192.168.0.2']

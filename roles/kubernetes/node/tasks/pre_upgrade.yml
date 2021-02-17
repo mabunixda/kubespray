@@ -1,18 +1,21 @@
 ---
 - name: "Pre-upgrade | check if kubelet container exists"
   shell: >-
-    {% if container_manager in ['crio', 'docker', 'rkt'] %}
-    docker ps -af name=kubelet | grep kubelet
+    set -o pipefail &&
+    {% if container_manager in ['crio', 'docker'] %}
+    {{ docker_bin_dir }}/docker ps -af name=kubelet | grep kubelet
     {% elif container_manager == 'containerd' %}
-    crictl ps --all --name kubelet | grep kubelet
+    {{ bin_dir }}/crictl ps --all --name kubelet | grep kubelet
     {% endif %}
+  args:
+    executable: /bin/bash
   failed_when: false
   changed_when: false
   register: kubelet_container_check
 
 - name: "Pre-upgrade | copy /var/lib/cni from kubelet"
   command: >-
-    {% if container_manager in ['crio', 'docker', 'rkt'] %}
+    {% if container_manager in ['crio', 'docker'] %}
     docker cp kubelet:/var/lib/cni /var/lib/cni
     {% elif container_manager == 'containerd' %}
     ctr run --rm --mount type=bind,src=/var/lib/cni,dst=/cnilibdir,options=rbind:rw kubelet kubelet-tmp sh -c 'cp /var/lib/cni/* /cnilibdir/'
@@ -30,10 +33,10 @@
 
 - name: "Pre-upgrade | ensure kubelet container is removed if using host deployment"
   shell: >-
-    {% if container_manager in ['crio', 'docker', 'rkt'] %}
-    docker rm -fv kubelet
+    {% if container_manager in ['crio', 'docker'] %}
+    {{ docker_bin_dir }}/docker rm -fv kubelet
     {% elif container_manager == 'containerd' %}
-    crictl stop kubelet && crictl rm kubelet
+    {{ bin_dir }}/crictl stop kubelet && {{ bin_dir }}/crictl rm kubelet
     {% endif %}
   failed_when: false
   changed_when: false

@@ -24,7 +24,7 @@ whether the registry is run or not. To set this flag, you can specify
 does not include this flag, the following steps should work. Note that some of
 this is cloud-provider specific, so you may have to customize it a bit.
 
-### Make some storage
+- Make some storage
 
 The primary job of the registry is to store data. To do that we have to decide
 where to store it. For cloud environments that have networked storage, we can
@@ -38,8 +38,6 @@ kind: PersistentVolume
 apiVersion: v1
 metadata:
   name: kube-system-kube-registry-pv
-  labels:
-    kubernetes.io/cluster-service: "true"
 spec:
 {% if pillar.get('cluster_registry_disk_type', '') == 'gce' %}
   capacity:
@@ -60,7 +58,7 @@ If, for example, you wanted to use NFS you would just need to change the
 Note that in any case, the storage (in the case the GCE PersistentDisk) must be
 created independently - this is not something Kubernetes manages for you (yet).
 
-### I don't want or don't have persistent storage
+- I don't want or don't have persistent storage
 
 If you are running in a place that doesn't have networked storage, or if you
 just want to kick the tires on this without committing to it, you can easily
@@ -81,8 +79,6 @@ apiVersion: v1
 metadata:
   name: kube-registry-pvc
   namespace: kube-system
-  labels:
-    kubernetes.io/cluster-service: "true"
 spec:
   accessModes:
     - ReadWriteOnce
@@ -112,7 +108,6 @@ metadata:
   labels:
     k8s-app: registry
     version: v0
-    kubernetes.io/cluster-service: "true"
 spec:
   replicas: 1
   selector:
@@ -123,7 +118,6 @@ spec:
       labels:
         k8s-app: registry
         version: v0
-        kubernetes.io/cluster-service: "true"
     spec:
       containers:
       - name: registry
@@ -165,7 +159,6 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: registry
-    kubernetes.io/cluster-service: "true"
     kubernetes.io/name: "KubeRegistry"
 spec:
   selector:
@@ -193,7 +186,6 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: kube-registry-proxy
-    kubernetes.io/cluster-service: "true"
     version: v0.4
 spec:
   template:
@@ -201,7 +193,6 @@ spec:
       labels:
         k8s-app: kube-registry-proxy
         kubernetes.io/name: "kube-registry-proxy"
-        kubernetes.io/cluster-service: "true"
         version: v0.4
     spec:
       containers:
@@ -223,7 +214,7 @@ spec:
 ```
 <!-- END MUNGE: EXAMPLE ../../saltbase/salt/kube-registry-proxy/kube-registry-proxy.yaml -->
 
-When modifying replication-controller, service and daemon-set definitionss, take
+When modifying replication-controller, service and daemon-set definitions, take
 care to ensure *unique* identifiers for the rc-svc couple and the daemon-set.
 Failing to do so will have register the localhost proxy daemon-sets to the
 upstream service. As a result they will then try to proxy themselves, which
@@ -269,13 +260,13 @@ Now you can build and push images on your local computer as
 your kubernetes cluster with the same name.
 
 More Extensions
-===============
+---------------
 
--   [Use GCS as storage backend](gcs/README.md)
--   [Enable TLS/SSL](tls/README.md)
--   [Enable Authentication](auth/README.md)
+- [Use GCS as storage backend](gcs/README.md)
+- [Enable TLS/SSL](tls/README.md)
+- [Enable Authentication](auth/README.md)
 
 Future improvements
 -------------------
 
--   Allow port-forwarding to a Service rather than a pod (\#15180)
+- Allow port-forwarding to a Service rather than a pod (\#15180)

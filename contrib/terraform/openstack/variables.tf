@@ -3,8 +3,14 @@ variable "cluster_name" {
 }
 
 variable "az_list" {
-  description = "List of Availability Zones available in your OpenStack cluster"
-  type        = "list"
+  description = "List of Availability Zones to use for masters in your OpenStack cluster"
+  type        = list(string)
+  default     = ["nova"]
+}
+
+variable "az_list_node" {
+  description = "List of Availability Zones to use for nodes in your OpenStack cluster"
+  type        = list(string)
   default     = ["nova"]
 }
 
@@ -68,6 +74,10 @@ variable "gfs_volume_size_in_gb" {
   default = 75
 }
 
+variable "master_volume_type" {
+  default = "Default"
+}
+
 variable "public_key_path" {
   description = "The path of the ssh pub key"
   default     = "~/.ssh/id_rsa.pub"
@@ -125,7 +135,7 @@ variable "network_name" {
 
 variable "network_dns_domain" {
   description = "dns_domain for the internal network"
-  type        = "string"
+  type        = string
   default     = null
 }
 
@@ -136,13 +146,19 @@ variable "use_neutron" {
 
 variable "subnet_cidr" {
   description = "Subnet CIDR block."
-  type        = "string"
+  type        = string
   default     = "10.0.0.0/24"
 }
 
 variable "dns_nameservers" {
   description = "An array of DNS name server names used by hosts in this subnet."
-  type        = "list"
+  type        = list(string)
+  default     = []
+}
+
+variable "k8s_master_fips" {
+  description = "specific pre-existing floating IPs to use for master nodes"
+  type        = list(string)
   default     = []
 }
 
@@ -172,30 +188,36 @@ variable "supplementary_node_groups" {
 
 variable "bastion_allowed_remote_ips" {
   description = "An array of CIDRs allowed to SSH to hosts"
-  type        = "list"
+  type        = list(string)
   default     = ["0.0.0.0/0"]
 }
 
 variable "master_allowed_remote_ips" {
   description = "An array of CIDRs allowed to access API of masters"
-  type        = "list"
+  type        = list(string)
   default     = ["0.0.0.0/0"]
 }
 
 variable "k8s_allowed_remote_ips" {
   description = "An array of CIDRs allowed to SSH to hosts"
-  type        = "list"
+  type        = list(string)
   default     = []
 }
 
 variable "k8s_allowed_egress_ips" {
   description = "An array of CIDRs allowed for egress traffic"
-  type        = "list"
+  type        = list(string)
   default     = ["0.0.0.0/0"]
 }
 
+variable "master_allowed_ports" {
+  type = list(any)
+
+  default = []
+}
+
 variable "worker_allowed_ports" {
-  type = "list"
+  type = list(any)
 
   default = [
     {
@@ -209,4 +231,50 @@ variable "worker_allowed_ports" {
 
 variable "use_access_ip" {
   default = 1
+}
+
+variable "use_server_groups" {
+  default = false
+}
+
+variable "router_id" {
+  description = "uuid of an externally defined router to use"
+  default     = null
+}
+
+variable "router_internal_port_id" {
+  description = "uuid of the port connection our router to our network"
+  default     = null
+}
+
+variable "k8s_nodes" {
+  default = {}
+}
+
+variable "extra_sec_groups" {
+  default = false
+}
+
+variable "extra_sec_groups_name" {
+  default = "custom"
+}
+
+variable "image_uuid" {
+  description = "uuid of image inside openstack to use"
+  default     = ""
+}
+
+variable "image_gfs_uuid" {
+  description = "uuid of image to be used on gluster fs nodes. If empty defaults to image_uuid"
+  default     = ""
+}
+
+variable "image_master" {
+  description = "uuid of image inside openstack to use"
+  default     = ""
+}
+
+variable "image_master_uuid" {
+  description = "uuid of image to be used on master nodes. If empty defaults to image_uuid"
+  default     = ""
 }
